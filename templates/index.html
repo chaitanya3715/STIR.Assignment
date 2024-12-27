@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trending Topics</title>
+    <script>
+        async function fetchResults() {
+            // Step 1: Trigger Selenium script
+            const seleniumResponse = await fetch('/run-selenium', { method: 'POST' });
+            if (!seleniumResponse.ok) {
+                alert("Failed to run Selenium script!");
+                return;
+            }
+
+            // Step 2: Fetch the results
+            const resultsResponse = await fetch('/fetch-results');
+            if (!resultsResponse.ok) {
+                alert("Failed to fetch results from the database!");
+                return;
+            }
+
+            const data = await resultsResponse.json();
+
+            // Step 3: Display the results
+            const resultDiv = document.getElementById('results');
+            const endTime = new Date(data.end_time).toLocaleString();
+            resultDiv.innerHTML = `
+                <p>These are the most happening topics as on ${endTime}:</p>
+                <ul>
+                    <li>${data.trend1 || 'N/A'}</li>
+                    <li>${data.trend2 || 'N/A'}</li>
+                    <li>${data.trend3 || 'N/A'}</li>
+                    <li>${data.trend4 || 'N/A'}</li>
+                    <li>${data.trend5 || 'N/A'}</li>
+                </ul>
+                <p>The IP address used for this query was ${data.ip_address || 'N/A'}.</p>
+                <p>Here’s a JSON extract of this record from the MongoDB:</p>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+    </script>
+</head>
+<body>
+    <h1>Get Trending Topics</h1>
+    <button onclick="fetchResults()">Run Selenium and Fetch Results</button>
+    <div id="results" style="margin-top: 20px;"></div>
+</body>
+</html>
